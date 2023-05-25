@@ -1,6 +1,12 @@
 import sys
 from zipfile import ZipFile
 import pandas as pd
+import sqlite3
+from sqlite3 import Error
+
+
+
+basededatos= 'coches.db'
 
 def descomprimir(nombre):
     with ZipFile(nombre, 'r') as zip:
@@ -9,6 +15,19 @@ def descomprimir(nombre):
 def leer_datos (nombre):
     datos = pd.read_csv(nombre, sep= ';')
     return datos
+
+def crear_conexion():
+    try:
+        conexion = sqlite3.connect(basededatos)
+        return conexion
+    except Error:
+        print(Error)
+
+def crear_tablaCoches(conexion):
+    cursor = conexion.cursor()
+    cursor.execute('CREATE TABLE coches(marca text, modelo text, combustible text, transmision text, estado text, matricula text, kilometraje integer, potencia real, precio real)')
+    conexion.commit()
+
 
 if __name__== '__main__':
     if len(sys.argv) != 2:
@@ -20,3 +39,6 @@ if __name__== '__main__':
         datos=leer_datos(nombre_fichero)
         #print(datos)
         #print(datos.columns)
+
+        conexion=crear_conexion()
+        crear_tablaCoches(conexion)
